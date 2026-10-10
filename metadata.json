@@ -1,0 +1,6 @@
+{
+  "name": "Project Omni-Assistant",
+  "description": "macOS operating system orchestrator with local hybrid memory, telemetry filtering, and dynamic sub-agent provisioning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

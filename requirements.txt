@@ -1,0 +1,18 @@
+# Project Omni-Assistant: Python Requirements (macOS)
+# Install via: pip install -r requirements.txt
+
+# Phase 1: Unified Local Database & Vector Retrieval
+pysqlite3-binary>=0.5.4; sys_platform == 'darwin'
+sqlite-vec>=0.1.6
+sentence-transformers>=3.1.0
+
+# Phase 2: macOS Telemetry & Parsing
+pyobjc-core>=10.3; sys_platform == 'darwin'
+pyobjc-framework-ApplicationServices>=10.3; sys_platform == 'darwin'
+pyobjc-framework-Cocoa>=10.3; sys_platform == 'darwin'
+
+# Phase 3: Gemini Live API Python SDK
+google-genai>=1.0.0
+
+# Phase 5: Native Floating HUD
+PyQt6>=6.7.0
