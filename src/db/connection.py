@@ -1,17 +1,25 @@
 """
 Database connection manager with extension loading support.
-Uses pysqlite3-binary fallback to ensure enable_load_extension(True) works on macOS.
+Configures WAL mode, pragmas, and loads sqlite-vec when available.
 """
 
 from pathlib import Path
 from typing import Optional
-
-# Technical Constraint 1: Prefer pysqlite3-binary if installed to bypass
-# macOS system Python restrictions where extension loading is disabled.
 import pysqlite3 as sqlite3
+
+try:
+    import sqlite_vec
+    HAS_SQLITE_VEC = True
+except ImportError:
+    HAS_SQLITE_VEC = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DB_PATH = BASE_DIR / "omni_memory.db"
+
+
+def is_sqlite_vec_installed() -> bool:
+    """Returns True if sqlite-vec python package is present."""
+    return HAS_SQLITE_VEC
 
 
 def enable_extensions_if_supported(conn: sqlite3.Connection) -> bool:
@@ -28,10 +36,10 @@ def enable_extensions_if_supported(conn: sqlite3.Connection) -> bool:
 def get_db_connection(db_path: Optional[str | Path] = None) -> sqlite3.Connection:
     """
     Returns an optimized, WAL-mode SQLite connection with row factories enabled.
-    Configures busy timeout to prevent transient locks during high telemetry concurrency.
+    Loads sqlite-vec extension if installed in the current environment.
     """
     path = str(db_path or DEFAULT_DB_PATH)
-    conn = sqlite3.connect(path, timeout=10.0, isolation_level=None)  # autocommit mode by default; explicit transactions used for atomic batches
+    conn = sqlite3.connect(path, timeout=10.0, isolation_level=None)
     conn.row_factory = sqlite3.Row
 
     # Performance and concurrency optimizations for macOS daemons
@@ -40,5 +48,11 @@ def get_db_connection(db_path: Optional[str | Path] = None) -> sqlite3.Connectio
     conn.execute("PRAGMA busy_timeout = 5000;")
     conn.execute("PRAGMA foreign_keys = ON;")
 
-    enable_extensions_if_supported(conn)
+    ext_enabled = enable_extensions_if_supported(conn)
+    if ext_enabled and HAS_SQLITE_VEC:
+        try:
+            sqlite_vec.load(conn)
+        except Exception:
+            pass
+
     return conn
