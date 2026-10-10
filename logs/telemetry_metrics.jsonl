@@ -30,7 +30,6 @@
 {"timestamp": "2026-10-10T18:44:31+0000", "operation": "get_log_by_id", "latency_ms": 0.015, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 3}}
 {"timestamp": "2026-10-10T18:44:31+0000", "operation": "get_log_by_id", "latency_ms": 0.015, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 4}}
 {"timestamp": "2026-10-10T18:44:31+0000", "operation": "get_recent_logs", "latency_ms": 0.057, "payload_size_bytes": 0, "status": "success", "details": {"count": 4}}
-<<<<<<< HEAD
 {"timestamp": "2026-10-10T18:50:52+0000", "operation": "generate_embedding", "latency_ms": 0.122, "payload_size_bytes": 74, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
 {"timestamp": "2026-10-10T18:50:52+0000", "operation": "generate_embedding", "latency_ms": 0.113, "payload_size_bytes": 80, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
 {"timestamp": "2026-10-10T18:50:52+0000", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.619, "payload_size_bytes": 82, "status": "success", "details": {"inserted_id": 1, "event_type": "benchmark", "embed_compute_ms": 0.0, "write_lock_ms": 0.619, "vector_dimension": 384}}
@@ -75,7 +74,6 @@
 {"timestamp": "2026-10-10T18:50:57+0000", "operation": "search_fts5", "latency_ms": 0.083, "payload_size_bytes": 12, "status": "success", "details": {"query": "microservice", "fts_query": "microservice", "matches": 0}}
 {"timestamp": "2026-10-10T18:50:57+0000", "operation": "search_fts5", "latency_ms": 0.1, "payload_size_bytes": 6, "status": "success", "details": {"query": "bridge", "fts_query": "bridge", "matches": 1}}
 {"timestamp": "2026-10-10T18:50:57+0000", "operation": "search_fts5", "latency_ms": 0.074, "payload_size_bytes": 6, "status": "success", "details": {"query": "bridge", "fts_query": "bridge", "matches": 0}}
-=======
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "insert_telemetry_log", "latency_ms": 0.707, "payload_size_bytes": 125, "status": "success", "details": {"inserted_id": 1, "event_type": "debug_log"}}
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "insert_telemetry_log", "latency_ms": 0.154, "payload_size_bytes": 139, "status": "success", "details": {"inserted_id": 2, "event_type": "command_history"}}
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "insert_telemetry_log", "latency_ms": 0.14, "payload_size_bytes": 141, "status": "success", "details": {"inserted_id": 3, "event_type": "window_focus"}}
@@ -90,4 +88,24 @@
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "search_fts5", "latency_ms": 0.048, "payload_size_bytes": 12, "status": "success", "details": {"query": "microservice", "fts_query": "microservice", "matches": 0}}
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "search_fts5", "latency_ms": 0.062, "payload_size_bytes": 6, "status": "success", "details": {"query": "bridge", "fts_query": "bridge", "matches": 1}}
 {"timestamp": "2026-10-10T14:47:52-0400", "operation": "search_fts5", "latency_ms": 0.047, "payload_size_bytes": 6, "status": "success", "details": {"query": "bridge", "fts_query": "bridge", "matches": 0}}
->>>>>>> cdbd34d (changes to logs and db)
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.071, "payload_size_bytes": 74, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.058, "payload_size_bytes": 80, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.517, "payload_size_bytes": 82, "status": "success", "details": {"inserted_id": 1, "event_type": "benchmark", "embed_compute_ms": 0.0, "write_lock_ms": 0.517, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.06, "payload_size_bytes": 92, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.149, "payload_size_bytes": 94, "status": "success", "details": {"inserted_id": 2, "event_type": "infrastructure", "embed_compute_ms": 0.129, "write_lock_ms": 0.149, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.052, "payload_size_bytes": 80, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.158, "payload_size_bytes": 82, "status": "success", "details": {"inserted_id": 3, "event_type": "git_workflow", "embed_compute_ms": 0.108, "write_lock_ms": 0.158, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.052, "payload_size_bytes": 86, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.126, "payload_size_bytes": 88, "status": "success", "details": {"inserted_id": 4, "event_type": "chat", "embed_compute_ms": 0.107, "write_lock_ms": 0.126, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.052, "payload_size_bytes": 89, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.161, "payload_size_bytes": 91, "status": "success", "details": {"inserted_id": 5, "event_type": "database", "embed_compute_ms": 0.104, "write_lock_ms": 0.161, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.051, "payload_size_bytes": 89, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "insert_telemetry_with_embedding", "latency_ms": 0.123, "payload_size_bytes": 91, "status": "success", "details": {"inserted_id": 6, "event_type": "voice_transcript", "embed_compute_ms": 0.111, "write_lock_ms": 0.123, "vector_dimension": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.042, "payload_size_bytes": 40, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "search_semantic", "latency_ms": 0.563, "payload_size_bytes": 40, "status": "success", "details": {"query": "socket connection error and network drop", "matches": 3, "top_distance": 0.6645}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.042, "payload_size_bytes": 39, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "search_semantic", "latency_ms": 0.52, "payload_size_bytes": 39, "status": "success", "details": {"query": "branching workflow and merge collisions", "matches": 3, "top_distance": 0.77}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.041, "payload_size_bytes": 40, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "search_semantic", "latency_ms": 0.511, "payload_size_bytes": 40, "status": "success", "details": {"query": "concurrency lock and busy database table", "matches": 3, "top_distance": 0.7062}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "generate_embedding", "latency_ms": 0.041, "payload_size_bytes": 41, "status": "success", "details": {"model": "deterministic_fallback", "dim": 384}}
+{"timestamp": "2026-10-10T14:54:17-0400", "operation": "search_semantic", "latency_ms": 0.54, "payload_size_bytes": 41, "status": "success", "details": {"query": "voice speech command to inspect core dump", "matches": 3, "top_distance": 0.8191}}
