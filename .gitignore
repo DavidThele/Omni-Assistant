@@ -8,4 +8,4 @@ coverage/
 !.env.example
 .venv
 src/__pycache__/
-src/db/__pycache__/
+src/*/__pycache__/
