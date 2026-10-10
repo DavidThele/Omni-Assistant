@@ -1,9 +1,9 @@
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "insert_telemetry_log", "latency_ms": 0.371, "payload_size_bytes": 117, "status": "success", "details": {"inserted_id": 1, "event_type": "window_focus"}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "insert_telemetry_log", "latency_ms": 0.106, "payload_size_bytes": 72, "status": "success", "details": {"inserted_id": 2, "event_type": "command_history"}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "insert_telemetry_log", "latency_ms": 0.104, "payload_size_bytes": 124, "status": "success", "details": {"inserted_id": 3, "event_type": "filesystem_change"}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "insert_telemetry_log", "latency_ms": 0.103, "payload_size_bytes": 115, "status": "success", "details": {"inserted_id": 4, "event_type": "voice_transcript"}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "get_log_by_id", "latency_ms": 0.052, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 1}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "get_log_by_id", "latency_ms": 0.016, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 2}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "get_log_by_id", "latency_ms": 0.016, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 3}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "get_log_by_id", "latency_ms": 0.016, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 4}}
-{"timestamp": "2026-10-10T17:56:51+0000", "operation": "get_recent_logs", "latency_ms": 0.046, "payload_size_bytes": 0, "status": "success", "details": {"count": 4}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "insert_telemetry_log", "latency_ms": 0.336, "payload_size_bytes": 117, "status": "success", "details": {"inserted_id": 1, "event_type": "window_focus"}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "insert_telemetry_log", "latency_ms": 0.088, "payload_size_bytes": 72, "status": "success", "details": {"inserted_id": 2, "event_type": "command_history"}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "insert_telemetry_log", "latency_ms": 0.085, "payload_size_bytes": 124, "status": "success", "details": {"inserted_id": 3, "event_type": "filesystem_change"}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "insert_telemetry_log", "latency_ms": 0.085, "payload_size_bytes": 115, "status": "success", "details": {"inserted_id": 4, "event_type": "voice_transcript"}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "get_log_by_id", "latency_ms": 0.023, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 1}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "get_log_by_id", "latency_ms": 0.01, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 2}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "get_log_by_id", "latency_ms": 0.009, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 3}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "get_log_by_id", "latency_ms": 0.007, "payload_size_bytes": 0, "status": "success", "details": {"log_id": 4}}
+{"timestamp": "2026-10-10T14:28:50-0400", "operation": "get_recent_logs", "latency_ms": 0.027, "payload_size_bytes": 0, "status": "success", "details": {"count": 4}}

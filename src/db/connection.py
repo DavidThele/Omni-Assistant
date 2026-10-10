@@ -8,10 +8,7 @@ from typing import Optional
 
 # Technical Constraint 1: Prefer pysqlite3-binary if installed to bypass
 # macOS system Python restrictions where extension loading is disabled.
-try:
-    import pysqlite3 as sqlite3
-except ImportError:
-    import sqlite3
+import pysqlite3 as sqlite3
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DB_PATH = BASE_DIR / "omni_memory.db"

@@ -1,8 +1,20 @@
 # Project Omni-Assistant: Python Requirements (macOS)
-# Install via: pip install -r requirements.txt
+#
+# MAC OS APPLE SILICON BUILD INSTRUCTIONS:
+# Because Apple disables SQLite extension loading by default, you must compile 
+# pysqlite3 against Homebrew's sqlite so that sqlite-vec can be loaded.
+# If building a new environment, run these commands BEFORE installing from this file:
+#
+# export CFLAGS="-I$(brew --prefix sqlite)/include"
+# export LDFLAGS="-L$(brew --prefix sqlite)/lib"
+# python3 -m pip install --ignore-installed --no-cache-dir pysqlite3
+#
+# Then install the rest of the dependencies:
+# pip install -r requirements.txt
 
 # Phase 1: Unified Local Database & Vector Retrieval
-pysqlite3-binary>=0.5.4; sys_platform == 'darwin'
+pysqlite3>=0.5.4; sys_platform != 'darwin'
+pysqlite3; sys_platform == 'darwin'
 sqlite-vec>=0.1.6
 sentence-transformers>=3.1.0
 

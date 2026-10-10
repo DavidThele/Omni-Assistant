@@ -7,10 +7,7 @@ import time
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
-try:
-    import pysqlite3 as sqlite3
-except ImportError:
-    import sqlite3
+import pysqlite3 as sqlite3
 
 from ..logger import log_metric
 from .connection import get_db_connection

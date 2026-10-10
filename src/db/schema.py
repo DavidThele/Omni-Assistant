@@ -6,11 +6,7 @@ Implements Step 1.1 relational telemetry schema.
 from typing import Optional
 from pathlib import Path
 
-# Fallback for pysqlite3
-try:
-    import pysqlite3 as sqlite3
-except ImportError:
-    import sqlite3
+import pysqlite3 as sqlite3
 
 from .connection import get_db_connection
 
