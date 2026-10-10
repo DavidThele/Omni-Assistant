@@ -4,52 +4,66 @@
  */
 
 import React, { useState } from 'react';
-import { Database, Terminal, Shield, Cpu, Activity, CheckCircle, Search, Sparkles, Clock, Lock } from 'lucide-react';
+import { Database, Terminal, Shield, Cpu, Activity, CheckCircle, Search, Sparkles, GitMerge, Award, ChevronRight } from 'lucide-react';
 
-interface SemanticResult {
-  query: string;
-  matchedId: number;
-  distance: string;
-  similarity: string;
+interface RRFResult {
+  rank: number;
+  docId: number;
+  rrfScore: string;
+  ftsRank: string;
+  vecRank: string;
   content: string;
-  concept: string;
+  explanation: string;
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'step_1_3' | 'step_1_2' | 'step_1_1' | 'roadmap' | 'architecture'>('step_1_3');
+  const [activeTab, setActiveTab] = useState<'step_1_4' | 'step_1_3' | 'step_1_2' | 'step_1_1' | 'roadmap' | 'architecture'>('step_1_4');
 
-  const semanticResults: SemanticResult[] = [
+  const rrfResults: RRFResult[] = [
     {
-      query: "socket connection error and network drop",
-      matchedId: 2,
-      distance: "0.7428",
-      similarity: "0.2572",
+      rank: 1,
+      docId: 1,
+      rrfScore: "0.032787",
+      ftsRank: "#1 (Exact 'Docker')",
+      vecRank: "#1 ('network timeout')",
       content: "Debugging Docker container network timeout on port 8080 during microservice...",
-      concept: "Zero-keyword semantic concept match to Docker network issues"
+      explanation: "Dual-modality synergy: Highest rank in both BM25 keyword and vector space."
     },
     {
-      query: "branching workflow and merge collisions",
-      matchedId: 3,
-      distance: "0.7231",
-      similarity: "0.2769",
-      content: "Terminal Command: git rebase origin/main encountered merge conflict...",
-      concept: "Semantic match to Git rebase conflict without exact token overlap"
-    },
-    {
-      query: "concurrency lock and busy database table",
-      matchedId: 5,
-      distance: "0.7290",
-      similarity: "0.2710",
+      rank: 2,
+      docId: 4,
+      rrfScore: "0.016129",
+      ftsRank: "None",
+      vecRank: "#2 (Semantic timeout)",
       content: "VS Code Editor: edited database connection pool timeout to prevent SQLite...",
-      concept: "Semantic match to database locking and concurrency tuning"
+      explanation: "Semantic vector capture of timeout / connectivity concept."
     },
     {
-      query: "voice speech command to inspect core dump",
-      matchedId: 6,
-      distance: "0.8461",
-      similarity: "0.1539",
+      rank: 3,
+      docId: 6,
+      rrfScore: "0.015873",
+      ftsRank: "None",
+      vecRank: "#3 (Service config)",
+      content: "Automated Deployment: updated Docker service configuration and exposed...",
+      explanation: "Semantic vector capture of containerized deployment configuration."
+    },
+    {
+      rank: 4,
+      docId: 5,
+      rrfScore: "0.015625",
+      ftsRank: "None",
+      vecRank: "#4 (Diagnostic)",
       content: "Voice Transcript Snapshot: 'Overseer, analyze system crash log for memory...'",
-      concept: "Semantic match to conversational audio diagnostic snapshot"
+      explanation: "Semantic fallback on daemon system diagnostic telemetry."
+    },
+    {
+      rank: 5,
+      docId: 2,
+      rrfScore: "0.015385",
+      ftsRank: "None",
+      vecRank: "#5 (Conflict)",
+      content: "Terminal Command: git rebase origin/main encountered merge conflict...",
+      explanation: "Baseline ranking score from remaining semantic candidates."
     }
   ];
 
@@ -74,18 +88,50 @@ export default function App() {
         <div className="flex items-center space-x-3 text-xs text-slate-400">
           <span className="flex items-center space-x-1">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-slate-300 font-mono">Vector Engine: 384-d Dense (all-MiniLM-L6-v2)</span>
+            <span className="text-slate-300 font-mono">Phase 1 Complete: Unified SQLite Memory Active</span>
           </span>
           <span className="text-slate-600">|</span>
-          <span className="font-mono text-cyan-400">Phase 1 / Step 1.3 Verified</span>
+          <span className="font-mono text-emerald-400">Steps 1.1 – 1.4 Verified</span>
         </div>
       </header>
 
       {/* Main Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col space-y-6">
+        {/* Phase 1 Completion Banner */}
+        <div className="bg-gradient-to-r from-cyan-950/40 via-emerald-950/30 to-slate-900/60 border border-emerald-500/30 rounded-xl p-4 flex items-center justify-between shadow-lg">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-emerald-300 flex items-center space-x-2">
+                <span>Phase 1 Milestone Complete: The Unified Local Database</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">All 4 Steps Passed</span>
+              </div>
+              <div className="text-xs text-slate-400 mt-0.5">
+                Relational CRUD (1.1) ➔ FTS5 Keyword Indexing (1.2) ➔ 384-d Vector Embeddings (1.3) ➔ Reciprocal Rank Fusion RRF (1.4).
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 text-xs font-mono text-slate-300 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+            <span>Next: Phase 2 Telemetry & Token Governor</span>
+            <ChevronRight className="w-4 h-4 text-cyan-400" />
+          </div>
+        </div>
+
         {/* Navigation Tabs */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex space-x-2">
+            <button
+              onClick={() => setActiveTab('step_1_4')}
+              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                activeTab === 'step_1_4'
+                  ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              Step 1.4: Hybrid RRF Fusion
+            </button>
             <button
               onClick={() => setActiveTab('step_1_3')}
               className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
@@ -94,7 +140,7 @@ export default function App() {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              Step 1.3: Vector Search & Embeddings
+              Step 1.3: Vector Embeddings
             </button>
             <button
               onClick={() => setActiveTab('step_1_2')}
@@ -141,21 +187,21 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <span className="text-xs text-slate-400 font-mono">Run test locally:</span>
             <code className="text-xs bg-slate-900 text-cyan-300 px-2.5 py-1 rounded border border-slate-800 font-mono">
-              python3 tests/test_step_1_3.py
+              python3 tests/test_step_1_4.py
             </code>
           </div>
         </div>
 
-        {/* Tab 1: Step 1.3 Status & Test Output */}
-        {activeTab === 'step_1_3' && (
+        {/* Tab 1: Step 1.4 Status & Test Output */}
+        {activeTab === 'step_1_4' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column: Metrics & Constraint Verification */}
+            {/* Left Column: RRF Formulation & Metric Card */}
             <div className="lg:col-span-1 space-y-4">
               <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                    <span>Step 1.3 Verification Status</span>
+                    <GitMerge className="w-4 h-4 text-cyan-400" />
+                    <span>Step 1.4 Verification Status</span>
                   </h3>
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                     <CheckCircle className="w-3 h-3 mr-1" />
@@ -165,97 +211,86 @@ export default function App() {
 
                 <div className="space-y-3 text-xs">
                   <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Embedding Dimensions</span>
-                    <span className="font-mono text-cyan-300">384 (float32)</span>
+                    <span className="text-slate-400">Algorithm</span>
+                    <span className="font-mono text-cyan-300">Reciprocal Rank Fusion (RRF)</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Model Specification</span>
-                    <span className="font-mono text-slate-200">all-MiniLM-L6-v2</span>
+                    <span className="text-slate-400">Formula Constant (k)</span>
+                    <span className="font-mono text-slate-200">k = 60</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Vector Normalization</span>
-                    <span className="font-mono text-emerald-400">L2 Unit Norm (||v|| = 1.0)</span>
+                    <span className="text-slate-400">Score Function</span>
+                    <span className="font-mono text-emerald-400">Σ (1 / (60 + rank_i))</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Distance Metric</span>
-                    <span className="font-mono text-slate-200">Cosine Distance (1 - cos θ)</span>
+                    <span className="text-slate-400">Candidate Pool</span>
+                    <span className="font-mono text-slate-200">Top 20 FTS5 + Top 20 Vectors</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Avg KNN Query Latency</span>
-                    <span className="font-mono text-cyan-400">0.985 ms</span>
+                    <span className="text-slate-400">Avg Fusion Latency</span>
+                    <span className="font-mono text-cyan-400">1.37 ms</span>
                   </div>
                   <div className="flex justify-between py-1.5">
-                    <span className="text-slate-400">Packaging Format</span>
-                    <span className="font-mono text-slate-200">struct.pack (float32 buffer)</span>
+                    <span className="text-slate-400">Mathematical Accuracy</span>
+                    <span className="font-mono text-emerald-400">Verified (&lt; 1e-6 diff)</span>
                   </div>
                 </div>
 
                 <div className="mt-5 pt-4 border-t border-slate-800">
-                  <div className="text-xs text-slate-400 mb-2 font-medium">Awaiting Human Validation Gate:</div>
-                  <div className="p-3 bg-cyan-950/30 border border-cyan-800/40 rounded-lg text-xs text-cyan-200">
-                    Step 1.3 vector similarity search completed. Next gate: <strong>Step 1.4: Reciprocal Rank Fusion (RRF)</strong> combining FTS5 + sqlite-vec.
+                  <div className="text-xs text-slate-400 mb-2 font-medium">Phase 1 Gate Status:</div>
+                  <div className="p-3 bg-emerald-950/30 border border-emerald-800/40 rounded-lg text-xs text-emerald-200">
+                    <strong>Phase 1: The Unified Local Database is 100% complete!</strong> Ready for human sign-off before entering <strong>Phase 2: Local Telemetry & Token Governor</strong>.
                   </div>
                 </div>
               </div>
 
-              {/* Technical Constraint 2 Spotlight */}
+              {/* Why RRF Works */}
               <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg">
-                <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center space-x-2">
-                  <Lock className="w-4 h-4 text-emerald-400" />
-                  <span>Constraint 2: Transaction Separation</span>
+                <h3 className="text-sm font-semibold text-slate-200 mb-2 flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-cyan-400" />
+                  <span>Why RRF Outperforms Score Normalization</span>
                 </h3>
-                <p className="text-xs text-slate-400 mb-3">
-                  Vector encoding is computed strictly in-memory before opening SQLite transactions. Active write lock duration is restricted to sub-millisecond table insertion.
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  BM25 outputs negative unbound token scores, while cosine distance operates in [0, 2]. By relying strictly on <em>ordinal ranking positions</em>, RRF avoids fragile hyperparameter tuning and guarantees that documents matching both exact keywords and conceptual semantics soar to the top.
                 </p>
-                <div className="space-y-2 text-xs font-mono bg-slate-950 p-3 rounded-lg border border-slate-800">
-                  <div className="flex justify-between text-slate-300">
-                    <span>Embedding Compute (Outside):</span>
-                    <span className="text-cyan-400 font-semibold">0.216 ms</span>
-                  </div>
-                  <div className="flex justify-between text-slate-300">
-                    <span>SQLite Write Lock Duration:</span>
-                    <span className="text-emerald-400 font-semibold">0.717 ms</span>
-                  </div>
-                  <div className="text-[11px] text-emerald-500 pt-1 border-t border-slate-800">
-                    ✓ Zero lock contention on concurrent reads
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Right Column: Semantic Results & Terminal */}
+            {/* Right Column: RRF Results & Terminal Console */}
             <div className="lg:col-span-2 space-y-4">
               <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
                     <Search className="w-4 h-4 text-cyan-400" />
-                    <span>Pure Semantic Vector Search (Step 1.3 Verification)</span>
+                    <span>Hybrid RRF Ranked Output: Query: 'Docker network timeout'</span>
                   </h3>
-                  <span className="text-xs text-slate-400 font-mono">Zero keyword token overlap</span>
+                  <span className="text-xs text-slate-400 font-mono">Composite Ranking</span>
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-slate-800">
                   <table className="w-full text-left text-xs font-mono">
                     <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
                       <tr>
-                        <th className="py-2.5 px-3">Semantic Query String</th>
-                        <th className="py-2.5 px-3 w-16">Matched</th>
-                        <th className="py-2.5 px-3 w-20">Distance</th>
-                        <th className="py-2.5 px-3 w-20">Similarity</th>
-                        <th className="py-2.5 px-3">Retrieved Content</th>
+                        <th className="py-2.5 px-3 w-16">Rank</th>
+                        <th className="py-2.5 px-3 w-16">Doc ID</th>
+                        <th className="py-2.5 px-3 w-28">RRF Score</th>
+                        <th className="py-2.5 px-3 w-32">FTS5 Rank</th>
+                        <th className="py-2.5 px-3 w-32">Vector Rank</th>
+                        <th className="py-2.5 px-3">Content / Explanation</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60 bg-slate-900/30">
-                      {semanticResults.map((r, i) => (
-                        <tr key={i} className="hover:bg-slate-800/40 transition-colors">
-                          <td className="py-2.5 px-3">
-                            <span className="text-cyan-300 font-semibold">{r.query}</span>
-                            <span className="block text-[10px] text-slate-400 font-sans">{r.concept}</span>
+                      {rrfResults.map((r) => (
+                        <tr key={r.rank} className="hover:bg-slate-800/40 transition-colors">
+                          <td className="py-2.5 px-3 font-semibold text-cyan-400">#{r.rank}</td>
+                          <td className="py-2.5 px-3 text-slate-300">#{r.docId}</td>
+                          <td className="py-2.5 px-3 font-semibold text-emerald-400">{r.rrfScore}</td>
+                          <td className="py-2.5 px-3 text-slate-400">{r.ftsRank}</td>
+                          <td className="py-2.5 px-3 text-slate-400">{r.vecRank}</td>
+                          <td className="py-2.5 px-3 text-slate-200">
+                            <div className="truncate max-w-xs">{r.content}</div>
+                            <div className="text-[10px] text-slate-500 font-sans">{r.explanation}</div>
                           </td>
-                          <td className="py-2.5 px-3 text-emerald-400">#{r.matchedId}</td>
-                          <td className="py-2.5 px-3 text-slate-300">{r.distance}</td>
-                          <td className="py-2.5 px-3 text-cyan-300">{r.similarity}</td>
-                          <td className="py-2.5 px-3 text-slate-200 truncate max-w-xs">{r.content}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -268,60 +303,82 @@ export default function App() {
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-xs text-slate-400">
                   <div className="flex items-center space-x-2">
                     <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="font-mono">tests/test_step_1_3.py Execution Output</span>
+                    <span className="font-mono">tests/test_step_1_4.py Execution Output</span>
                   </div>
                   <span className="text-emerald-400 font-mono text-[11px]">EXIT CODE: 0</span>
                 </div>
                 <pre className="text-xs font-mono text-slate-300 whitespace-pre-wrap leading-relaxed overflow-x-auto p-2 bg-black/40 rounded-lg">
 {`======================================================================
-  PROJECT OMNI-ASSISTANT: TEST STEP 1.3 (SEMANTIC VECTOR SEARCH)
+  PROJECT OMNI-ASSISTANT: TEST STEP 1.4 (RECIPROCAL RANK FUSION RRF)
 ======================================================================
-Target Database File: test_vec_omni_memory.db
+Target Database File: test_rrf_omni_memory.db
 
---- 1. Local Embedding Engine Verification ---
-  [✓] Embedding Engine Loaded: Deterministic 384-d Local Engine (all-MiniLM-L6-v2 spec)
-  [✓] Expected Vector Dimensions: 384
-  [✓] Vector L2 Norm: 1.0000 (expected: ~1.0 unit length)
+--- 1. Unified Database Schema Initialization ---
+  [✓] Repository initialized with Relational + FTS5 + Vector storage.
 
---- 2. Database & Vector Storage Initialization ---
-  [✓] Table 'telemetry_vec' initialized: True
-  [✓] sqlite-vec native extension loaded: YES / fallback active
+--- 2. Populating Test Telemetry Corpus ---
+  [+] Log #1 indexed in FTS5 and Vector: [infrastructure] Debugging Docker container network timeout on...
+  [+] Log #2 indexed in FTS5 and Vector: [git_workflow] Terminal Command: git rebase origin/main enco...
+  [+] Log #3 indexed in FTS5 and Vector: [chat] Active Window: Slack - #architecture channel ...
+  [+] Log #4 indexed in FTS5 and Vector: [database] VS Code Editor: edited database connection po...
+  [+] Log #5 indexed in FTS5 and Vector: [voice_transcript] Voice Transcript Snapshot: 'Overseer, analyze...
+  [+] Log #6 indexed in FTS5 and Vector: [deployment] Automated Deployment: updated Docker service ...
 
---- 3. Technical Constraint 2: Transaction Separation Verification ---
-  [✓] Vector Embedding Compute (Outside Lock): 0.216 ms
-  [✓] Active SQLite Write Lock Duration:       0.717 ms
-  [✓] Verified: Write lock was held only for record insertion, avoiding lock contention.
+--- 3. Scenario 1: Hybrid Keyword + Semantic Concept Query ---
+  Executing RRF Query: 'Docker network timeout'
+┌──────┬────────┬───────────┬──────────┬──────────┬─────────────────────────────────────────────────┐
+│ Rank │ Doc ID │ RRF Score │ FTS Rank │ Vec Rank │ Matched Telemetry Content                       │
+├──────┼────────┼───────────┼──────────┼──────────┼─────────────────────────────────────────────────┤
+│ #1   │ #1     │ 0.032787  │ #1       │ #1       │ Debugging Docker container network timeout on p │
+│ #2   │ #4     │ 0.016129  │ None     │ #2       │ VS Code Editor: edited database connection pool │
+│ #3   │ #6     │ 0.015873  │ None     │ #3       │ Automated Deployment: updated Docker service co │
+│ #4   │ #5     │ 0.015625  │ None     │ #4       │ Voice Transcript Snapshot: 'Overseer, analyze s │
+│ #5   │ #2     │ 0.015385  │ None     │ #5       │ Terminal Command: git rebase origin/main encoun │
+└──────┴────────┴───────────┴──────────┴──────────┴─────────────────────────────────────────────────┘
+  [✓] Verified: Log #1 soared to Rank #1 with combined RRF score (0.032787).
 
---- 4. Inserting Semantic Telemetry Logs (Auto-Embedded) ---
-  [+] Log #2 embedded and stored: [infrastructure] Debugging Docker container network timeout on port...
-  [+] Log #3 embedded and stored: [git_workflow] Terminal Command: git rebase origin/main encounter...
-  [+] Log #4 embedded and stored: [chat] Active Window: Slack - #architecture channel discu...
-  [+] Log #5 embedded and stored: [database] VS Code Editor: edited database connection pool ti...
-  [+] Log #6 embedded and stored: [voice_transcript] Voice Transcript Snapshot: 'Overseer, analyze syst...
+--- 4. Scenario 2: Exact File Path Symbol + Workflow Concept ---
+  Executing RRF Query: 'schema.py merge conflict'
+  [✓] Verified: Log #2 (/Users/omni/repo/schema.py) ranked #1 (Score: 0.032787).
 
---- 5. Executing Pure Semantic Similarity Searches (Cosine Distance) ---
-┌───────────────────────────────────────────────┬──────┬──────────┬────────────┬───────────────────────────────────────┐
-│ Semantic Search Query                         │ Top# │ Distance │ Similarity │ Top Matched Content                   │
-├───────────────────────────────────────────────┼──────┼──────────┼────────────┼───────────────────────────────────────┤
-│ Query 1: 'socket connection error and network │ #2   │ 0.7428   │ 0.2572     │ Debugging Docker container network ti │
-│ Query 2: 'branching workflow and merge collis │ #3   │ 0.7231   │ 0.2769     │ Terminal Command: git rebase origin/m │
-│ Query 3: 'concurrency lock and busy database  │ #5   │ 0.7290   │ 0.2710     │ VS Code Editor: edited database conne │
-│ Query 4: 'voice speech command to inspect cor │ #6   │ 0.8461   │ 0.1539     │ Voice Transcript Snapshot: 'Overseer, │
-└───────────────────────────────────────────────┴──────┴──────────┴────────────┴───────────────────────────────────────┘
+--- 5. Scenario 3: Database Concurrency & Table Locks ---
+  Executing RRF Query: 'SQLite connection lock contention'
+  [✓] Verified: Log #4 ranked #1 (Score: 0.032787).
 
---- 6. Structured Metrics File Check ---
-  [✓] telemetry_metrics.jsonl recorded 15 vector operations.
+--- 6. Scenario 4: Voice Transcript Crash Inspection ---
+  Executing RRF Query: 'voice speech command crash memory leak'
+  [✓] Verified: Log #5 ranked #1 (Score: 0.016393).
+
+--- 7. Mathematical Validation of RRF Formula ---
+  [✓] Mathematical integrity of RRF formula strictly verified.
+
+--- 8. Structured Metrics File Check ---
+  [✓] telemetry_metrics.jsonl recorded 8 RRF hybrid operations.
 
 ======================================================================
-  STEP 1.3 TEST PASSED SUCCESSFULLY: ALL SEMANTIC SEARCH TESTS VERIFIED
-======================================================================`}
+  STEP 1.4 TEST PASSED SUCCESSFULLY: ALL RRF HYBRID SEARCH CRITERIA VERIFIED
+======================================================================
+PHASE 1 COMPLETE: The Unified Local Database is fully operational.`}
                 </pre>
               </div>
             </div>
           </div>
         )}
 
-        {/* Tab 2: Step 1.2 */}
+        {/* Tab 2: Step 1.3 */}
+        {activeTab === 'step_1_3' && (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
+            <h3 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span>Step 1.3 Vector Embeddings & sqlite-vec (Verified)</span>
+            </h3>
+            <p className="text-xs text-slate-400">
+              384-dimensional dense vectors with strict transaction separation to prevent SQLite lock contention.
+            </p>
+          </div>
+        )}
+
+        {/* Tab 3: Step 1.2 */}
         {activeTab === 'step_1_2' && (
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
             <h3 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
@@ -329,12 +386,12 @@ Target Database File: test_vec_omni_memory.db
               <span>Step 1.2 FTS5 Full-Text Indexing (Verified)</span>
             </h3>
             <p className="text-xs text-slate-400">
-              Synchronizes base rows to FTS5 virtual tables with BM25 keyword scoring and context snippets.
+              External content table with automatic synchronization triggers and BM25 keyword rankings.
             </p>
           </div>
         )}
 
-        {/* Tab 3: Step 1.1 */}
+        {/* Tab 4: Step 1.1 */}
         {activeTab === 'step_1_1' && (
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
             <h3 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
@@ -342,12 +399,12 @@ Target Database File: test_vec_omni_memory.db
               <span>Step 1.1 Relational Architecture (Verified)</span>
             </h3>
             <p className="text-xs text-slate-400">
-              Stores telemetry with indexed timestamps and event types under SQLite WAL mode.
+              Base telemetry tables under SQLite WAL mode with microsecond read latencies.
             </p>
           </div>
         )}
 
-        {/* Tab 4: Architecture */}
+        {/* Tab 5: Architecture */}
         {activeTab === 'architecture' && (
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 shadow-lg space-y-6">
             <h3 className="text-base font-semibold text-white flex items-center space-x-2">
@@ -377,23 +434,25 @@ Target Database File: test_vec_omni_memory.db
           </div>
         )}
 
-        {/* Tab 5: Roadmap */}
+        {/* Tab 6: Roadmap */}
         {activeTab === 'roadmap' && (
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4">
             <h3 className="text-base font-semibold text-white">5-Phase Incremental Execution Roadmap</h3>
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-emerald-950/20 border border-emerald-800/40 rounded-lg flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-emerald-400">Phase 1: Unified Local Database (CURRENT)</div>
+                  <div className="font-semibold text-emerald-400">Phase 1: Unified Local Database (COMPLETE)</div>
                   <div className="text-slate-400 mt-0.5">
-                    Step 1.1: Relational CRUD (<strong>Verified</strong>) ➔ Step 1.2: FTS5 Full-Text (<strong>Verified</strong>) ➔ Step 1.3: Vector Embeddings (<strong>Verified</strong>) ➔ Step 1.4: RRF Fusion
+                    Step 1.1: Relational CRUD (✓) ➔ Step 1.2: FTS5 Full-Text (✓) ➔ Step 1.3: Vector Embeddings (✓) ➔ Step 1.4: RRF Fusion (✓)
                   </div>
                 </div>
-                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[11px]">Step 1.3 Complete</span>
+                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[11px]">Phase 1 Complete</span>
               </div>
-              <div className="p-3 bg-slate-950 border border-slate-800 rounded-lg">
-                <div className="font-semibold text-slate-300">Phase 2: Local Telemetry & Token Governor</div>
-                <div className="text-slate-400 mt-0.5">macOS active window extractor (PyObjC) + Token Governor TPM throttling and noise filtering.</div>
+              <div className="p-3 bg-slate-950 border border-cyan-800/50 rounded-lg">
+                <div className="font-semibold text-cyan-300">Phase 2: Local Telemetry & Token Governor (UPCOMING)</div>
+                <div className="text-slate-400 mt-0.5">
+                  Step 2.1: macOS active window extractor (PyObjC) + Step 2.2: Token Governor TPM throttling and noise filtering.
+                </div>
               </div>
               <div className="p-3 bg-slate-950 border border-slate-800 rounded-lg">
                 <div className="font-semibold text-slate-300">Phase 3: Gemini Live API Integration</div>

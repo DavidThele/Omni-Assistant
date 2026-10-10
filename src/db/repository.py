@@ -1,6 +1,7 @@
 """
 Telemetry repository handling database interactions with timing instrumentation.
-Implements relational CRUD, FTS5 search, and Step 1.3 vector embeddings & semantic search.
+Implements relational CRUD, FTS5 search, vector embeddings, and
+Step 1.4 Reciprocal Rank Fusion (RRF) hybrid retrieval.
 Strictly isolates vector embedding generation outside of SQLite write transactions.
 """
 
@@ -25,13 +26,16 @@ from .schema import init_db_schema
 
 
 class TelemetryRepository:
-    """Repository for managing telemetry_logs, FTS5, and vector embeddings in SQLite."""
+    """Repository for managing telemetry_logs, FTS5, vector embeddings, and RRF in SQLite."""
 
     def __init__(self, db_path: Optional[str | Path] = None):
         self.db_path = db_path
         self.conn = get_db_connection(db_path)
         init_db_schema(self.conn)
         self.is_vec0_table = self._check_if_vec0()
+
+    def _check_if_vec0() -> bool:
+        pass
 
     def _check_if_vec0(self) -> bool:
         """Determines if telemetry_vec is a sqlite-vec virtual table or fallback table."""
@@ -149,7 +153,6 @@ class TelemetryRepository:
         """
         start_time = time.perf_counter()
 
-        # Generate query vector in-memory outside DB
         if isinstance(query, str):
             engine = EmbeddingEngine.get_instance()
             query_vector = engine.generate_embedding(query)
@@ -162,7 +165,6 @@ class TelemetryRepository:
         results: List[Dict[str, Any]] = []
 
         if self.is_vec0_table:
-            # Native sqlite-vec virtual table query
             packed_q = serialize_float32(query_vector)
             cursor.execute(
                 """
@@ -196,7 +198,6 @@ class TelemetryRepository:
                     "similarity": round(1.0 - dist, 4)
                 })
         else:
-            # Fallback pure cosine distance evaluation over stored vectors
             cursor.execute(
                 """
                 SELECT 
@@ -240,32 +241,6 @@ class TelemetryRepository:
             details={"query": query_text, "matches": len(results), "top_distance": results[0]["distance"] if results else None}
         )
         return results
-
-    def get_log_by_id(self, log_id: int) -> Optional[sqlite3.Row]:
-        """Fetch a specific log record by its primary key ID."""
-        start_time = time.perf_counter()
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM telemetry_logs WHERE id = ?;", (log_id,))
-        row = cursor.fetchone()
-        latency_ms = (time.perf_counter() - start_time) * 1000
-        log_metric("get_log_by_id", latency_ms, status="success" if row else "not_found", details={"log_id": log_id})
-        return row
-
-    def get_recent_logs(self, limit: int = 10) -> List[sqlite3.Row]:
-        """Fetch the most recent N telemetry records."""
-        start_time = time.perf_counter()
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT ?;", (limit,))
-        rows = cursor.fetchall()
-        latency_ms = (time.perf_counter() - start_time) * 1000
-        log_metric("get_recent_logs", latency_ms, status="success", details={"count": len(rows)})
-        return rows
-
-    def count_logs(self) -> int:
-        """Count total records in telemetry_logs."""
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM telemetry_logs;")
-        return cursor.fetchone()[0]
 
     def _sanitize_fts_query(self, query: str) -> str:
         """Sanitizes raw search terms into valid FTS5 expressions."""
@@ -345,6 +320,132 @@ class TelemetryRepository:
             details={"query": query, "fts_query": fts_query, "matches": len(rows)}
         )
         return rows
+
+    def search_hybrid_rrf(
+        self,
+        query: str,
+        limit: int = 10,
+        k: int = 60,
+        weight_fts: float = 1.0,
+        weight_vec: float = 1.0
+    ) -> List[Dict[str, Any]]:
+        """
+        Step 1.4: Reciprocal Rank Fusion (RRF) algorithm combining FTS5 and vector search.
+        Formula: RRF_score(d) = sum( weight_m / (k + rank_m(d)) ) for m in {FTS5, Vector}
+        Normalizes incompatible BM25 scores and cosine distances without heuristic scale drift.
+        """
+        start_time = time.perf_counter()
+
+        # Step A: Run candidate searches with larger candidate pool
+        candidate_pool_size = max(limit * 3, 20)
+        fts_candidates = self.search_keyword(query, limit=candidate_pool_size)
+        vec_candidates = self.search_semantic(query, limit=candidate_pool_size)
+
+        # Step B: Map 1-based ranks
+        # record_id -> {score, fts_rank, vec_rank, record_data}
+        rrf_map: Dict[int, Dict[str, Any]] = {}
+
+        # 1. Process FTS5 ranks
+        for rank_idx, fts_row in enumerate(fts_candidates, start=1):
+            doc_id = fts_row["id"]
+            fts_component = weight_fts / (k + rank_idx)
+            if doc_id not in rrf_map:
+                rrf_map[doc_id] = {
+                    "id": doc_id,
+                    "timestamp": fts_row["timestamp"],
+                    "file_path": fts_row["file_path"],
+                    "event_type": fts_row["event_type"],
+                    "content": fts_row["content"],
+                    "metadata": fts_row["metadata"],
+                    "snippet": fts_row["snippet"],
+                    "bm25_rank": fts_row["bm25_rank"],
+                    "fts_rank": rank_idx,
+                    "vec_rank": None,
+                    "distance": None,
+                    "similarity": None,
+                    "rrf_score": fts_component
+                }
+            else:
+                rrf_map[doc_id]["fts_rank"] = rank_idx
+                rrf_map[doc_id]["bm25_rank"] = fts_row["bm25_rank"]
+                rrf_map[doc_id]["snippet"] = fts_row["snippet"]
+                rrf_map[doc_id]["rrf_score"] += fts_component
+
+        # 2. Process Vector ranks
+        for rank_idx, vec_item in enumerate(vec_candidates, start=1):
+            doc_id = vec_item["id"]
+            vec_component = weight_vec / (k + rank_idx)
+            if doc_id not in rrf_map:
+                rrf_map[doc_id] = {
+                    "id": doc_id,
+                    "timestamp": vec_item["timestamp"],
+                    "file_path": vec_item["file_path"],
+                    "event_type": vec_item["event_type"],
+                    "content": vec_item["content"],
+                    "metadata": vec_item["metadata"],
+                    "snippet": None,
+                    "bm25_rank": None,
+                    "fts_rank": None,
+                    "vec_rank": rank_idx,
+                    "distance": vec_item["distance"],
+                    "similarity": vec_item["similarity"],
+                    "rrf_score": vec_component
+                }
+            else:
+                rrf_map[doc_id]["vec_rank"] = rank_idx
+                rrf_map[doc_id]["distance"] = vec_item["distance"]
+                rrf_map[doc_id]["similarity"] = vec_item["similarity"]
+                rrf_map[doc_id]["rrf_score"] += vec_component
+
+        # Step C: Sort by composite RRF score descending
+        ranked_results = list(rrf_map.values())
+        ranked_results.sort(key=lambda x: x["rrf_score"], reverse=True)
+
+        final_results = ranked_results[:limit]
+        latency_ms = (time.perf_counter() - start_time) * 1000
+
+        log_metric(
+            "search_hybrid_rrf",
+            latency_ms,
+            payload_size=len(query.encode("utf-8")),
+            status="success",
+            details={
+                "query": query,
+                "fts_candidates": len(fts_candidates),
+                "vec_candidates": len(vec_candidates),
+                "total_unique": len(rrf_map),
+                "returned": len(final_results),
+                "top_score": round(final_results[0]["rrf_score"], 5) if final_results else 0.0
+            }
+        )
+
+        return final_results
+
+    def get_log_by_id(self, log_id: int) -> Optional[sqlite3.Row]:
+        """Fetch a specific log record by its primary key ID."""
+        start_time = time.perf_counter()
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM telemetry_logs WHERE id = ?;", (log_id,))
+        row = cursor.fetchone()
+        latency_ms = (time.perf_counter() - start_time) * 1000
+        log_metric("get_log_by_id", latency_ms, status="success" if row else "not_found", details={"log_id": log_id})
+        return row
+
+    def get_recent_logs(self, limit: int = 10) -> List[sqlite3.Row]:
+        """Fetch the most recent N telemetry records."""
+        start_time = time.perf_counter()
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT ?;", (limit,))
+        rows = cursor.fetchall()
+        latency_ms = (time.perf_counter() - start_time) * 1000
+        log_metric("get_recent_logs", latency_ms, status="success", details={"count": len(rows)})
+        return rows
+
+    def count_logs(self) -> int:
+        """Count total records in telemetry_logs."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM telemetry_logs;")
+        return cursor.fetchone()[0]
 
     def close(self):
         """Closes the underlying database connection."""
