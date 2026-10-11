@@ -156,8 +156,13 @@ An omnipresent, context-aware operating system orchestrator for macOS built stri
 - **Step 3.2**: Bidirectional audio streaming with Voice Activity Detection (VAD) and barge-in.
 
 ### **Phase 4: Overseer & Dynamic Sub-Agent Factory**
-- **Step 4.1**: Dynamic prompt synthesis and ephemeral sub-agent factory based on real-time telemetry.
-- **Step 4.2**: Native sandbox executor bounded to `/sandbox` with read allowlist and destructive modifier intercepts.
+- **Step 4.1**: Dynamic prompt synthesis and ephemeral sub-agent factory based on real-time telemetry. (**COMPLETED & VERIFIED**)
+  - Dynamic Prompt Synthesizer (`src/agent/prompt_synthesizer.py`) analyzing OS window state, accessibility tree, and SQLite RRF memory.
+  - Ephemeral Sub-Agent Factory (`src/agent/factory.py`) with zero hardcoded agent types, dynamic moniker synthesis, and automatic memory cleanup.
+  - Strict Tool-Scope Isolation Gate (`src/agent/subagent.py`) restricting sub-agents to runtime granted allowlists.
+  - Overseer Orchestrator (`src/agent/overseer.py`) coordinating turns with sub-millisecond execution.
+  - Verification: `tests/test_step_4_1.py` passed with 100% assertions and structured metric logging.
+- **Step 4.2**: Native sandbox executor bounded to `/sandbox` with read allowlist and destructive modifier intercepts. (**NEXT GATE**)
 
 ### **Phase 5: Native macOS UI & Omnichannel Approval**
 - **Step 5.1**: Floating HUD overlay (PyQt6 / native hooks), global hotkey listeners, and execution staging gates.

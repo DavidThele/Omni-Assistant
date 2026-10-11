@@ -11,7 +11,10 @@ import time
 from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
 
-import pysqlite3 as sqlite3
+try:
+    import pysqlite3 as sqlite3
+except ImportError:
+    import sqlite3
 
 from ..logger import log_metric
 from ..embeddings import (

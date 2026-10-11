@@ -142,6 +142,13 @@ class TokenGovernor:
         self.history.append(TokenRecord(timestamp=now, tokens=tokens, channel="telemetry"))
         self.evaluate_state(now)
 
+    def consume(self, tokens: int, channel: str = "telemetry", current_time: Optional[float] = None) -> None:
+        """Generic token consumption recorder."""
+        if channel == "voice":
+            self.record_voice_consumption(tokens, current_time)
+        else:
+            self.record_telemetry_consumption(tokens, current_time)
+
     def can_dispatch_telemetry(self, estimated_tokens: int, current_time: Optional[float] = None) -> Tuple[bool, GovernorState, str]:
         """
         Checks if a telemetry batch of estimated_tokens can be dispatched.

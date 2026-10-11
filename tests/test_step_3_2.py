@@ -16,9 +16,11 @@ import sys
 import time
 import wave
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent

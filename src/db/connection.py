@@ -5,7 +5,10 @@ Configures WAL mode, pragmas, and loads sqlite-vec when available.
 
 from pathlib import Path
 from typing import Optional
-import pysqlite3 as sqlite3
+try:
+    import pysqlite3 as sqlite3
+except ImportError:
+    import sqlite3
 
 try:
     import sqlite_vec

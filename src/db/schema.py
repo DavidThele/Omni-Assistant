@@ -6,7 +6,10 @@ and Step 1.3 sqlite-vec / vector storage.
 
 from typing import Optional
 from pathlib import Path
-import pysqlite3 as sqlite3
+try:
+    import pysqlite3 as sqlite3
+except ImportError:
+    import sqlite3
 
 from .connection import get_db_connection
 
