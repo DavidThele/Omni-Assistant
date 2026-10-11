@@ -13,6 +13,9 @@ import os
 import sys
 import time
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent

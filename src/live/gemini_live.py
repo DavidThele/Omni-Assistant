@@ -26,8 +26,8 @@ except ImportError:
 @dataclass
 class LiveSessionConfig:
     """Configuration for Gemini Live session."""
-    model: str = "gemini-3.8-live"
-    modalities: List[str] = field(default_factory=lambda: ["TEXT", "AUDIO"])
+    model: str = "gemini-2.0-flash-exp"
+    modalities: List[str] = field(default_factory=lambda: ["AUDIO"])
     voice_name: str = "Puck"
     system_instruction: str = (
         "You are Project Omni-Assistant Overseer, a hyper-personalized operating system orchestrator "
@@ -60,21 +60,22 @@ class MockLiveSession:
         self.last_input_is_audio = False
         self.interrupted = False
 
-    async def send(self, input: Union[str, bytes, dict], end_of_turn: bool = True) -> None:
+    async def send(self, input: Union[str, bytes, dict] = None, realtime_input: Any = None, end_of_turn: bool = True) -> None:
         self.interrupted = False
-        if isinstance(input, dict):
-            # Formatted data dict
-            if "data" in input:
-                self.last_input = input["data"]
+        payload = input if input is not None else realtime_input
+
+        if isinstance(payload, dict):
+            if "data" in payload:
+                self.last_input = payload["data"]
                 self.last_input_is_audio = True
             else:
-                self.last_input = str(input)
+                self.last_input = str(payload)
                 self.last_input_is_audio = False
-        elif isinstance(input, bytes):
-            self.last_input = input
+        elif isinstance(payload, bytes):
+            self.last_input = payload
             self.last_input_is_audio = True
-        else:
-            self.last_input = str(input)
+        elif payload is not None:
+            self.last_input = str(payload)
             self.last_input_is_audio = False
 
     async def interrupt(self) -> None:
@@ -156,15 +157,15 @@ class GeminiLiveClient:
 
         if not self.is_mock and self.client is not None:
             try:
-                modalities = []
-                for m in cfg.modalities:
-                    if m.upper() == "TEXT":
-                        modalities.append(types.LiveModality.TEXT)
-                    elif m.upper() == "AUDIO":
-                        modalities.append(types.LiveModality.AUDIO)
+                # The Gemini Live WebSocket API mandates AUDIO in response modalities.
+                # Always ensure AUDIO is included to prevent server-side 1007 close frames.
+                response_modalities = [types.Modality.AUDIO]
+                # for m in cfg.modalities:
+                #     if m.upper() == "TEXT" and types.Modality.TEXT not in response_modalities:
+                #         response_modalities.append(types.Modality.TEXT)
 
                 connect_config = types.LiveConnectConfig(
-                    response_modalities=modalities or [types.LiveModality.TEXT, types.LiveModality.AUDIO],
+                    response_modalities=response_modalities,
                     system_instruction=types.Content(
                         parts=[types.Part.from_text(text=cfg.system_instruction)]
                     )
@@ -181,7 +182,7 @@ class GeminiLiveClient:
                     operation="gemini_live_connect",
                     latency_ms=conn_latency,
                     status="success",
-                    details={"model": cfg.model, "native_sdk": True, "modalities": cfg.modalities}
+                    details={"model": cfg.model, "native_sdk": True, "modalities": [m.name for m in response_modalities]}
                 )
                 return session, session_ctx
             except Exception as e:
@@ -229,11 +230,18 @@ class GeminiLiveClient:
             async for response in session.receive():
                 server_content = getattr(response, "server_content", None)
                 if server_content is not None:
+                    # 1. Grab transcription text directly from output_transcription
+                    output_tx = getattr(server_content, "output_transcription", None)
+                    if output_tx and getattr(output_tx, "text", None):
+                        accumulated_text.append(output_tx.text)
+
+                    # 2. Grab any model_turn parts (audio / text fallback)
                     model_turn = getattr(server_content, "model_turn", None)
                     if model_turn is not None:
                         for part in model_turn.parts:
                             if getattr(part, "text", None):
                                 accumulated_text.append(part.text)
+
                     if getattr(server_content, "turn_complete", False):
                         is_complete = True
                         break
@@ -257,7 +265,6 @@ class GeminiLiveClient:
             text=result_text,
             turn_complete=is_complete
         )
-
     async def send_realtime_audio_chunk(
         self,
         session,
@@ -269,17 +276,31 @@ class GeminiLiveClient:
         if isinstance(session, MockLiveSession):
             await session.send(input={"data": pcm_chunk, "mime_type": mime_type}, end_of_turn=end_of_turn)
         else:
-            # Native SDK sends media chunk
-            realtime_input = types.LiveClientRealtimeInput(
-                media_chunks=[types.Blob(data=pcm_chunk, mime_type=mime_type)]
-            )
-            await session.send(realtime_input=realtime_input, end_of_turn=end_of_turn)
+            # 1. Send the audio chunk
+            blob = types.Blob(data=pcm_chunk, mime_type=mime_type)
+            realtime_input = types.LiveClientRealtimeInput(media_chunks=[blob])
+            await session.send(input=realtime_input)
+
+            # 2. If end_of_turn, stream 500ms of silence so server VAD detects end of speech
+            if end_of_turn:
+                silence_bytes = b"\x00" * 16000  # 500ms of 16kHz 16-bit mono PCM (16000 samples/sec * 2 bytes = 32000 B/s -> 16000 B = 0.5s)
+                silence_input = types.LiveClientRealtimeInput(
+                    media_chunks=[types.Blob(data=silence_bytes, mime_type=mime_type)]
+                )
+                await session.send(input=silence_input)
+
+                # 3. Explicitly signal end of client turn
+                try:
+                    await session.send(end_of_turn=True)
+                except Exception:
+                    pass
 
     async def stream_audio_turn(
         self,
         session,
         pcm_input: bytes,
-        on_audio_packet: Optional[Callable[[bytes], None]] = None
+        on_audio_packet: Optional[Callable[[bytes], None]] = None,
+        timeout_sec: float = 15.0
     ) -> LiveResponse:
         """
         Sends full PCM audio input, streams incoming 24kHz response audio packets,
@@ -287,6 +308,7 @@ class GeminiLiveClient:
         """
         start_time = time.perf_counter()
 
+        # Send audio with trailing silence and turn commitment
         await self.send_realtime_audio_chunk(session, pcm_input, end_of_turn=True)
 
         accumulated_text = []
@@ -310,29 +332,43 @@ class GeminiLiveClient:
                     is_complete = True
                     break
         else:
-            async for response in session.receive():
-                server_content = getattr(response, "server_content", None)
-                if server_content is not None:
-                    if getattr(server_content, "interrupted", False):
-                        was_interrupted = True
-                        is_complete = True
-                        break
+            async def _receive_loop():
+                nonlocal is_complete, was_interrupted
+                async for response in session.receive():
+                    server_content = getattr(response, "server_content", None)
+                    if server_content is not None:
+                        if getattr(server_content, "interrupted", False):
+                            was_interrupted = True
+                            is_complete = True
+                            break
 
-                    model_turn = getattr(server_content, "model_turn", None)
-                    if model_turn is not None:
-                        for part in model_turn.parts:
-                            if getattr(part, "text", None):
-                                accumulated_text.append(part.text)
-                            inline_data = getattr(part, "inline_data", None)
-                            if inline_data is not None and getattr(inline_data, "data", None):
-                                data_bytes = inline_data.data
-                                accumulated_audio.extend(data_bytes)
-                                if on_audio_packet:
-                                    on_audio_packet(data_bytes)
+                        # Extract transcription tokens
+                        output_tx = getattr(server_content, "output_transcription", None)
+                        if output_tx and getattr(output_tx, "text", None):
+                            accumulated_text.append(output_tx.text)
 
-                    if getattr(server_content, "turn_complete", False):
-                        is_complete = True
-                        break
+                        # Extract audio stream
+                        model_turn = getattr(server_content, "model_turn", None)
+                        if model_turn is not None:
+                            for part in model_turn.parts:
+                                if getattr(part, "text", None):
+                                    accumulated_text.append(part.text)
+                                inline_data = getattr(part, "inline_data", None)
+                                if inline_data is not None and getattr(inline_data, "data", None):
+                                    data_bytes = inline_data.data
+                                    accumulated_audio.extend(data_bytes)
+                                    if on_audio_packet:
+                                        on_audio_packet(data_bytes)
+
+                        if getattr(server_content, "turn_complete", False) or getattr(server_content, "generation_complete", False):
+                            is_complete = True
+                            break
+
+            try:
+                # Shield receive loop with a timeout to avoid indefinite hanging
+                await asyncio.wait_for(_receive_loop(), timeout=timeout_sec)
+            except asyncio.TimeoutError:
+                print("\n[WARNING] Live audio receive timed out after", timeout_sec, "seconds.")
 
         latency_ms = (time.perf_counter() - start_time) * 1000
         result_text = "".join(accumulated_text)
